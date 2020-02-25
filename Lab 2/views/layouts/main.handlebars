@@ -4,16 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{title}}</title>
     <link rel="stylesheet" href="/public/css/styles.min.css">
 </head>
 
 <body>
-
-    <main>
-        {{{body}}}
-    </main>
+    <div class="container">
+        <div class="sanam">
+            <div class="container text-center">
+                <h1>Welcome to the World of Dogs!</h1>
+                <h2>You know what you just can't hate them. You will fall in love with
+                    them</h2>
+            </div>
+        </div>
+        <div class="row ">
+            <nav class="col-sm-12 col-md-2 col-lg-2 ">
+                <ul class="nav flex-column sticky-top ">
+                    <li class="nav-item"><a class="nav-link" href="#shibainu">Shiba Inu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#rottweiler">Rottweiler</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#poodle">Poodle</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pomeranian">Pomeranian</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#labrador">Labrador</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#husky">Husky</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#retriever">Retriever</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#doberman">Doberman</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#bulldog">Bulldog</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#beagle">Beagle</a></li>
+                </ul>
+            </nav>
+            <main class="col-sm-12 col-md-10 col-lg-10">
+                {{{body}}}
+            </main>
+        </div>
+    </div>
     <script src="../public/js/vendor.min.js"></script>
 </body>
 

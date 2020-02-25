@@ -443,8 +443,8 @@ pre {
 
 .container {
   width: 100%;
-  padding-right: 15px;
-  padding-left: 15px;
+  padding-right: 60 px/2;
+  padding-left: 60 px/2;
   margin-right: auto;
   margin-left: auto; }
   @media (min-width: 576px) {
@@ -462,8 +462,8 @@ pre {
 
 .container-fluid, .container-sm, .container-md, .container-lg, .container-xl {
   width: 100%;
-  padding-right: 15px;
-  padding-left: 15px;
+  padding-right: 60 px/2;
+  padding-left: 60 px/2;
   margin-right: auto;
   margin-left: auto; }
 
@@ -486,8 +486,8 @@ pre {
 .row {
   display: flex;
   flex-wrap: wrap;
-  margin-right: -15px;
-  margin-left: -15px; }
+  margin-right: -60 px/2;
+  margin-left: -60 px/2; }
 
 .no-gutters {
   margin-right: 0;
@@ -505,8 +505,8 @@ pre {
 .col-xl-auto {
   position: relative;
   width: 100%;
-  padding-right: 15px;
-  padding-left: 15px; }
+  padding-right: 60 px/2;
+  padding-left: 60 px/2; }
 
 .col {
   flex-basis: 0;
@@ -3386,22 +3386,22 @@ input[type="button"].btn-block {
   border-bottom-left-radius: calc(0.25rem - 1px); }
 
 .card-deck .card {
-  margin-bottom: 15px; }
+  margin-bottom: 60 px/2; }
 
 @media (min-width: 576px) {
   .card-deck {
     display: flex;
     flex-flow: row wrap;
-    margin-right: -15px;
-    margin-left: -15px; }
+    margin-right: -60 px/2;
+    margin-left: -60 px/2; }
     .card-deck .card {
       flex: 1 0 0%;
-      margin-right: 15px;
+      margin-right: 60 px/2;
       margin-bottom: 0;
-      margin-left: 15px; } }
+      margin-left: 60 px/2; } }
 
 .card-group > .card {
-  margin-bottom: 15px; }
+  margin-bottom: 60 px/2; }
 
 @media (min-width: 576px) {
   .card-group {
@@ -7185,13 +7185,48 @@ a.text-dark:hover, a.text-dark:focus {
 body,
 html {
   background: #fefefe;
-  color: #666666;
+  color: black;
   font-family: Georgia, Cambria, "Times New Roman", Times, serif;
   font-size: 14pt;
-  background-clip: border-box; }
+  background-clip: border-box;
+  text-align: center;
+  align-self: center; }
+
+.sanam {
+  background-color: #28a745;
+  text-align: center;
+  align-self: center; }
+
+.card {
+  margin: 0 auto;
+  float: none;
+  margin-bottom: 10px; }
 
 p {
-  font-size: 5.6; }
+  font-size: 12.5pt; }
+
+.nav-link {
+  color: white;
+  font-weight: bold;
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+  font-size: 14pt;
+  background-color: #218939;
+  border-radius: 5px;
+  margin-top: 5px; }
+
+.btn-primary {
+  font-size: large;
+  background-color: #0069d9;
+  font-weight: bold; }
+
+.btn:hover {
+  background-color: #00448d; }
+
+.modal-title {
+  font-weight: bold; }
+
+.bg-primary1 {
+  background-color: #0072ed; }
 
 section.book h2 {
   border-bottom: 2px solid #000; }
