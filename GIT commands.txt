@@ -1,0 +1,8 @@
+git init //To initialize empty repo
+git remote add origin https://github.com/sanamsritam/CS-554-Web-Programming-II.git  // To add remote
+git remote -v	// To check remote
+git pull https://github.com/sanamsritam/CS-554-Web-Programming-II.git 	// To clone
+git rm -r --cached --ignore-unmatch .tmp.drivedownload  // To untrack drive sync folder
+git add .	// Add all new file and folder to tracking
+git commit -m "Your Message Here"	// To commit
+git push --set-upstream origin master	// To set origin master and push for the first time
