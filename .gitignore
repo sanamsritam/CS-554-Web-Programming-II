@@ -1,2 +1,3 @@
 *.driveupload
 ./counselor-dev.zip
+/settings.json
