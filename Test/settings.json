@@ -1,0 +1,10 @@
+{
+  "mongoConfig": {
+    "serverUrl": "mongodb+srv://admin:root@cluster0-yn6h4.mongodb.net/test?retryWrites=true&w=majority",
+    "database": "Sanam_Jena_Mongoose_Test"
+  },
+  "env": {
+    "serverUrl": "mongodb+srv://admin:root@cluster0-yn6h4.mongodb.net/test?retryWrites=true&w=majority",
+    "database": "counselor"
+  }
+}

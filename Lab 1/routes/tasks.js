@@ -43,7 +43,7 @@ router.post("/", async (req, res) => {
     const create1 = await taskData.createTask(
       req.body.title,
       req.body.description,
-      req.body.hoursestimated,
+      req.body.hoursEstimated,
       req.body.completed
     );
     res.status(200).json(create1);
@@ -96,7 +96,7 @@ router.patch("/:id", async (req, res) => {
     //   req.params.id,
     //   req.body.title,
     //   req.body.description,
-    //   req.body.hoursestimated,
+    //   req.body.hoursEstimated,
     //   req.body.completed
     // );
     // console.log("Printing req.body" + req.body);
@@ -115,7 +115,7 @@ router.put("/:id", async (req, res) => {
       req.params.id,
       req.body.title,
       req.body.description,
-      req.body.hoursestimated,
+      req.body.hoursEstimated,
       req.body.completed
     );
     res.status(200).json(put1);

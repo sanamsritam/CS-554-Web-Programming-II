@@ -4,9 +4,26 @@ const _ = require("underscore");
 const stellarService = require("../services/stellarService");
 const articleConfig = require("../settings").articleConfig;
 const stellarConfig = require("../settings").stellarConfig;
+const mongoConfig = require("../settings");
+const usersmodel = require("../models/users");
+const articlesmodel = require("../models/articles");
+const mongoose = require("mongoose");
 
-const articles = collections.articles;
-const users = collections.users;
+const sessions = collections.sessions;
+const userfunction = require("./users");
+const conn = mongoose.connect(mongoConfig.env.serverUrl, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  dbName: mongoConfig.env.database,
+});
+
+mongoose.connection
+  .once("open", () =>
+    console.log("Connected to Atlas Using Mongoose inside data/articles")
+  )
+  .on("error", (error) => {
+    console.log("error is: " + error);
+  });
 
 async function create(newArticle, authorId) {
   const error = new Error();
@@ -51,102 +68,115 @@ async function create(newArticle, authorId) {
     error.http_code = 400;
   }
 
-  newArticle._id = MUUID.v4();
-  let author = null;
   try {
-    authorId = MUUID.from(authorId);
-
-    const usersCollection = await users();
-    await usersCollection
-      .updateOne(
-        { _id: authorId },
-        {
-          $push: {
-            published: {
-              articleId: newArticle._id,
-              reward: parseInt(articleConfig.initialCost),
-            },
-          },
-        }
-      )
-      .then(async function (updateInfo) {
-        if (updateInfo.modifiedCount === 0) {
-          error.message = JSON.stringify({
-            error: "could not update published article",
-            errors: errors,
-          });
-          error.http_code = 400;
-          throw error;
-        }
-      });
-    await usersCollection
-      .updateOne(
-        { _id: authorId },
-        {
-          $push: {
-            rewards: {
-              articleId: newArticle._id,
-              reward: parseInt(articleConfig.initialCost),
-            },
-          },
-        }
-      )
-      .then(async function (updateInfo) {
-        if (updateInfo.modifiedCount === 0) {
-          error.message = JSON.stringify({
-            error: "could not update published article",
-            errors: errors,
-          });
-          error.http_code = 400;
-          throw error;
-        }
-      });
-    author = await usersCollection.findOne({ _id: authorId });
-    await usersCollection.updateOne(
-      { _id: authorId },
-      {
-        $set: { balance: author.balance + parseInt(articleConfig.initialCost) },
+    if (authorId === undefined || authorId === null) {
+      errors["id"] = "id is not defined";
+      error.http_code = 400;
+    }
+    // Added By Sanam to Implement Mongoose
+    if (typeof authorId === "string") {
+      try {
+        authorId = MUUID.from(authorId);
+      } catch (e) {
+        errors["id"] = e.message;
+        error.http_code = 400;
+        error.message = JSON.stringify({
+          errors: errors,
+        });
+        throw error;
       }
-    );
+    } else {
+      try {
+        MUUID.from(authorId);
+      } catch (e) {
+        errors["id"] = "id is not defined";
+        error.http_code = 400;
+        error.message = JSON.stringify({
+          errors: errors,
+        });
+        throw error;
+      }
+    }
+
+    const test1 = new articlesmodel({
+      _id: MUUID.v4(),
+      title: newArticle.title,
+      text: newArticle.text,
+      html: newArticle.html,
+      keywords: newArticle.keywords,
+      ratings: [],
+      author: authorId,
+      cost: mongoConfig.articleConfig.initialCost,
+      read: 0,
+      rating: 0,
+    });
+    const projection = {
+      balance: true,
+    };
+    const upd = await userfunction.getUserById(authorId, projection);
+    const result = test1
+      .save()
+      .then((result) => {
+        const newId = MUUID.from(result._id).toString();
+        //adding published
+        usersmodel
+          .updateOne(
+            { _id: authorId },
+            {
+              $push: {
+                published: {
+                  articleId: result._id,
+                  cost: mongoConfig.articleConfig.initialCost,
+                },
+              },
+            }
+          )
+          .exec()
+          .then((res) => {
+            return res;
+          })
+          .catch((error) => {
+            console.log(error);
+            return error.message;
+          });
+
+        //adding balance
+
+        var bal = upd.balance;
+        bal = bal + parseInt(mongoConfig.articleConfig.initialCost);
+        const jena = {
+          balance: bal,
+        };
+        usersmodel
+          .updateOne({ _id: authorId }, { $set: jena })
+          .exec()
+          .then((doc) => {
+            return doc;
+          })
+          .catch((err) => {
+            console.log(err);
+            return err.message;
+          });
+        return get(newId);
+      })
+      .catch((error) => {
+        console.log(error);
+        return error.message;
+      });
+    return result;
   } catch (e) {
     throw e;
   }
-  newArticle.ratings = [];
-  newArticle.cost = parseInt(articleConfig.initialCost);
-  newArticle.read = 0;
-  newArticle.rating = 0;
-  newArticle.author = authorId;
-  const articleCollection = await articles();
-
-  const insertInfo = await articleCollection.insertOne(newArticle);
-
-  if (insertInfo.insertedCount === 0) {
-    error.message = JSON.stringify({
-      error: "could not create task",
-      object: newArticle,
-      errors: errors,
-    });
-    error.http_code = 400;
-    throw error;
-  }
-
-  await stellarService.transfer(
-    stellarConfig.masterPrivateKey,
-    author.privateKey,
-    articleConfig.initialCost
-  );
-
-  const newId = insertInfo.insertedId.toString();
-
-  return await get(newId);
 }
 
 async function getpublishedbyuser(userId) {
-  return true;
+  const result = await userfunction.getPublished(userId);
+  return result;
 }
 
 async function getpurchasedbyuser(userId) {
-  return true;
+  const result = await userfunction.getPurchased(userId);
+  return result;
 }
 
 async function get(articleId) {
@@ -182,22 +212,18 @@ async function get(articleId) {
       throw error;
     }
   }
-  const articleCollection = await articles();
-
-  let article = await articleCollection.findOne({ _id: articleId });
-
-  if (article === null) {
-    errors["id"] = `article with id ${articleId} doesn't exists`;
-    error.http_code = 404;
-    error.message = JSON.stringify({
-      errors: errors,
+  // Added By Sanam to Implement Mongoose
+  const result = articlesmodel
+    .findOne({ _id: articleId })
+    .exec()
+    .then((doc) => {
+      return doc;
+    })
+    .catch((error) => {
+      console.log(error);
+      return error.message;
     });
-    throw error;
-  }
-  article._id = MUUID.from(article._id).toString();
-  article.author = MUUID.from(article.author).toString();
-
-  return article;
+  return result;
 }
 
 async function update(articleId, updatedArticle, partial = false) {
@@ -258,25 +284,48 @@ async function update(articleId, updatedArticle, partial = false) {
     throw error;
   }
 
-  try {
-    const oldArticle = await get(articleId);
-
-    const articleCollection = await articles();
-
-    return await articleCollection
-      .updateOne({ _id: MUUID.from(articleId) }, { $set: updatedArticle })
-      .then(async function (updateInfo) {
-        if (updateInfo.modifiedCount === 0) {
-          error.message = JSON.stringify({
-            error: "could not update task",
-            object: updatedArticle,
-            errors: errors,
-          });
-          error.http_code = 400;
-          throw error;
-        }
-        return await get(articleId);
+  //   added by sanam
+  if (articleId === undefined || articleId === null) {
+    errors["id"] = "id is not defined";
+    error.http_code = 400;
+  }
+  // Added By Sanam to Implement Mongoose
+  if (typeof articleId === "string") {
+    try {
+      articleId = MUUID.from(articleId);
+    } catch (e) {
+      errors["id"] = e.message;
+      error.http_code = 400;
+      error.message = JSON.stringify({
+        errors: errors,
       });
+      throw error;
+    }
+  } else {
+    try {
+      MUUID.from(articleId);
+    } catch (e) {
+      errors["id"] = "id is not defined";
+      error.http_code = 400;
+      error.message = JSON.stringify({
+        errors: errors,
+      });
+      throw error;
+    }
+  }
+
+  try {
+    const result = articlesmodel
+      .updateOne({ _id: articleId }, { $set: updatedArticle })
+      .exec()
+      .then((doc) => {
+        return doc;
+      })
+      .catch((err) => {
+        console.log(err);
+        return err.message;
+      });
+    return result;
   } catch (e) {
     throw e;
   }
